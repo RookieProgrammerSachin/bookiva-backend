@@ -1,4 +1,4 @@
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
 import { randomBytes } from "crypto";
 import { db } from "./config.js";
 
@@ -24,12 +24,14 @@ const reserveHall = async (req, res) => {
                 ...reservationData
             })
         });
-        await updateDoc(doc(db, "user-data", reservationData.reservedBy), {
+        await setDoc(doc(db, "user-data", reservationData.reservedBy), {
+            hasResetPwd: true,
+            hasReserved: false,
             reservations: arrayUnion({
                 "reservedHall": hallName,
                 ...reservationData
             })
-        });
+        }, { merge: true });
         res.status(200).json({
             "result": "Success"
         });
