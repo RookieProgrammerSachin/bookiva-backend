@@ -11,6 +11,7 @@ const getAdminData = async (req, res) => {
         data.docs.forEach(docdata => reservationData.push(docdata.data()));
 
         res.json(reservationData);
+        reservationData = [];
     }
 }
 
