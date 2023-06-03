@@ -4,7 +4,7 @@ import { db } from "./config.js";
 var halls = [];
 
 const getHalls = async (req, res) => {
-    const dbSnapShot = await getDocs(collection(db, "card-data"));
+    const dbSnapShot = await getDoc(collection(db, "card-data"));
     dbSnapShot.forEach((snap) => {
         halls.push(snap.data());
     });

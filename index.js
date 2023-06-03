@@ -6,6 +6,7 @@ import { getHalls } from "./carddata.js";
 import { getUsers } from "./userdata.js";
 import { reserveHall } from "./reserve.js";
 import { addHall } from "./addhall.js";
+import { getAdminData } from "./admindata.js";
 
 const app = express();
 
@@ -30,6 +31,8 @@ app.get("/api/", (req, res) => {
 //     "isAvailable": false,
 //     "carouselPics": ["https://www.dbsindia.com/images/conference-room/conference-room1.jpg", "https://www.inspireofficespaces.com/web/image/4393-b63cd18f/Conference-room-in-chennai.png"]
 // }
+
+app.post("/api/admin-data", getAdminData);
 
 app.post("/api/add-hall", addHall);
 
