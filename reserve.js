@@ -1,8 +1,9 @@
 import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
-import { randomBytes } from "crypto";
+import { randomBytes, } from "crypto";
 import { db } from "./config.js";
 
 const reserveHall = async (req, res) => {
+    // console.log(req.body);
     const hallName = req.body.hall;
 
     const reservationData = {
