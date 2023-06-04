@@ -8,6 +8,7 @@ import { reserveHall } from "./reserve.js";
 import { addHall } from "./addhall.js";
 import { getAdminData } from "./admindata.js";
 import { acceptRequest } from "./adminaccept.js";
+import { denyRequest } from "./admindeny.js";
 
 const app = express();
 
@@ -36,6 +37,8 @@ app.get("/api/", (req, res) => {
 app.post("/api/admin-data", getAdminData);
 
 app.post("/api/admin-accept", acceptRequest);
+
+app.post("/api/admin-deny", denyRequest);
 
 app.post("/api/add-hall", addHall);
 

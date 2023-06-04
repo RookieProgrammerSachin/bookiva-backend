@@ -32,9 +32,9 @@ const reserveHall = async (req, res) => {
     }
 
     try {
-        await updateDoc(doc(db, "card-data", slugify(hallName)), {
-            reservations: arrayUnion(reservationData)
-        });
+        // await updateDoc(doc(db, "card-data", slugify(hallName)), {
+        //     reservations: arrayUnion(reservationData)
+        // });
         await updateDoc(doc(db, "reservations", "pending"), {
             reservation: arrayUnion({
                 "reservedHall": hallName, 

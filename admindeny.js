@@ -7,7 +7,7 @@ const slugify = str => str.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace
 //     "body":
 // }
 
-const acceptRequest = async (req, res) => {
+const denyRequest = async (req, res) => {
     // fetch reservations data
     // pending, accepted, denied nu vechiko
     // currData = pending la filter and take that alone
@@ -34,11 +34,10 @@ const acceptRequest = async (req, res) => {
             const currentRequestData = pendingData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
 
             const pendingDocRef = doc(db, "reservations", "pending");
-            const allowedDocRef = doc(db, "reservations", "allowed");
             const deniedDocRef = doc(db, "reservations", "denied"); // actually deny route la dhane use pannanu
 
             const userDocRef = doc(db, "user-data", currentRequestData.reservedBy);
-            const cardDocRef = doc(db, "card-data", slugify(currentRequestData.reservedHall));
+            // const cardDocRef = doc(db, "card-data", slugify(currentRequestData.reservedHall));
 
             await updateDoc(pendingDocRef, {
                 reservation: arrayRemove(currentRequestData)
@@ -50,9 +49,9 @@ const acceptRequest = async (req, res) => {
             });
             console.log("userdata removed");
 
-            currentRequestData.status = "accepted";
+            currentRequestData.status = "denied";
 
-            await updateDoc(allowedDocRef, {
+            await updateDoc(deniedDocRef, {
                 reservation: arrayUnion(currentRequestData)
             });
             console.log("added to accepted");
@@ -61,31 +60,25 @@ const acceptRequest = async (req, res) => {
                 reservations: arrayUnion(currentRequestData) 
             });
             console.log("updated user doc");
-
-            delete currentRequestData.reservedHall;
-
+            
             // await updateDoc(cardDocRef, {
-            //     reservations: arrayRemove(currentRequestData)
+            //     reservations: arrayUnion(currentRequestData)
             // });
 
-            await updateDoc(cardDocRef, {
-                reservations: arrayUnion(currentRequestData)
-            });
-
-            console.log("changed card data");
+            // console.log("changed card data");
 
             reservationsData = [];
             res.status(200).json({
-                status: "Successfully accepted"
+                status: "Successfully Denied"
             });
 
         } catch(err) {
             console.log(err);
             res.status(400).json({
-                status: "Error in accepting"
+                status: "Error in denying"
             });
         }
     }
 }
 
-export { acceptRequest }
+export { denyRequest }
