@@ -12,6 +12,8 @@ const reserveHall = async (req, res) => {
         "reservedOn": req.body.date,
         "startTime": req.body.start,
         "endTime": req.body.end,
+        "reserverName": req.body.name,
+        "purpose": req.body.purpose,
         "status": "pending"
     }
 
