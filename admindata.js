@@ -1,4 +1,4 @@
-import { getDoc, collection, doc, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./config.js";
 
 var reservationData = []
