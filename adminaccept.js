@@ -20,18 +20,31 @@ const acceptRequest = async (req, res) => {
 
     const id = req.body.id;
     const reservationId = req.body.reserveId;
+    const mode = req.body.mode;
     var reservationsData = [];
+
+    console.log(req.body);
 
     if (id === "7JiwkV5dfQO602p5RuGLlOu7Av82"){
         try {
             const data = await getDocs(collection(db, "reservations"));
             data.docs.forEach(docdata => reservationsData.push(docdata.data()));
 
+            // console.log(reservationsData);
+
             const allowedData = reservationsData[0];
             const deniedData = reservationsData[1];
             const pendingData = reservationsData[2];
 
+            console.log("allowedData",allowedData, "deniedData",deniedData, "pendingData",pendingData);
+
+            // if potu check pannu.. if mode is 0, then currentReqdata, else deniedReqData
+            // adhukapro if vechiye dhaan 
             const currentRequestData = pendingData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
+            const deniedRequestData = deniedData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
+            const allowedRequestData = allowedData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
+
+            console.log("currentRequestData",currentRequestData, "deniedRequestData",deniedRequestData, "allowedRequestData",allowedRequestData);
 
             const pendingDocRef = doc(db, "reservations", "pending");
             const allowedDocRef = doc(db, "reservations", "allowed");
@@ -40,39 +53,41 @@ const acceptRequest = async (req, res) => {
             const userDocRef = doc(db, "user-data", currentRequestData.reservedBy);
             const cardDocRef = doc(db, "card-data", slugify(currentRequestData.reservedHall));
 
-            await updateDoc(pendingDocRef, {
-                reservation: arrayRemove(currentRequestData)
-            });
-            console.log("removed from pending");
+            // await updateDoc(pendingDocRef, {
+            //     reservation: arrayRemove(currentRequestData)
+            // });
+            // console.log("removed from pending");  
 
-            await updateDoc(userDocRef, {
-                reservations: arrayRemove(currentRequestData)
-            });
-            console.log("userdata removed");
+            // // denied landhu remove
 
-            currentRequestData.status = "accepted";
-
-            await updateDoc(allowedDocRef, {
-                reservation: arrayUnion(currentRequestData)
-            });
-            console.log("added to accepted");
-
-            await updateDoc(userDocRef, {
-                reservations: arrayUnion(currentRequestData) 
-            });
-            console.log("updated user doc");
-
-            delete currentRequestData.reservedHall;
-
-            // await updateDoc(cardDocRef, {
+            // await updateDoc(userDocRef, {
             //     reservations: arrayRemove(currentRequestData)
             // });
+            // console.log("userdata removed");
 
-            await updateDoc(cardDocRef, {
-                reservations: arrayUnion(currentRequestData)
-            });
+            // currentRequestData.status = "accepted";
 
-            console.log("changed card data");
+            // await updateDoc(allowedDocRef, {
+            //     reservation: arrayUnion(currentRequestData)
+            // });
+            // console.log("added to accepted");
+
+            // await updateDoc(userDocRef, {
+            //     reservations: arrayUnion(currentRequestData) 
+            // });
+            // console.log("updated user doc");
+
+            // delete currentRequestData.reservedHall;
+
+            // // await updateDoc(cardDocRef, {
+            // //     reservations: arrayRemove(currentRequestData)
+            // // });
+
+            // await updateDoc(cardDocRef, {
+            //     reservations: arrayUnion(currentRequestData)
+            // });
+
+            // console.log("changed card data");
 
             reservationsData = [];
             res.status(200).json({
