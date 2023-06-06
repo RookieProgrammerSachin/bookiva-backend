@@ -36,63 +36,110 @@ const acceptRequest = async (req, res) => {
             const deniedData = reservationsData[1];
             const pendingData = reservationsData[2];
 
-            console.log("allowedData",allowedData, "deniedData",deniedData, "pendingData",pendingData);
+            // console.log("allowedData",allowedData, "deniedData",deniedData, "pendingData",pendingData);
 
             // if potu check pannu.. if mode is 0, then currentReqdata, else deniedReqData
             // adhukapro if vechiye dhaan 
-            const currentRequestData = pendingData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
-            const deniedRequestData = deniedData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
-            const allowedRequestData = allowedData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
+            if (mode === 0){
+                const currentRequestData = pendingData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
+                
+                const pendingDocRef = doc(db, "reservations", "pending");
+                const allowedDocRef = doc(db, "reservations", "allowed");
+                // const deniedDocRef = doc(db, "reservations", "denied"); // actually deny route la dhane use pannanu
+    
+                const userDocRef = doc(db, "user-data", currentRequestData.reservedBy);
+                const cardDocRef = doc(db, "card-data", slugify(currentRequestData.reservedHall));
+    
+                await updateDoc(pendingDocRef, {
+                    reservation: arrayRemove(currentRequestData)
+                });
+                console.log("removed from pending");  
+    
+                // denied landhu remove
+    
+                await updateDoc(userDocRef, {
+                    reservations: arrayRemove(currentRequestData)
+                });
+                console.log("userdata removed");
+    
+                currentRequestData.status = "accepted";
+    
+                await updateDoc(allowedDocRef, {
+                    reservation: arrayUnion(currentRequestData)
+                });
+                console.log("added to accepted");
+    
+                await updateDoc(userDocRef, {
+                    reservations: arrayUnion(currentRequestData) 
+                });
+                console.log("updated user doc");
+    
+                delete currentRequestData.reservedHall;
+    
+                // await updateDoc(cardDocRef, {
+                //     reservations: arrayRemove(currentRequestData)
+                // });
+    
+                await updateDoc(cardDocRef, {
+                    reservations: arrayUnion(currentRequestData)
+                });
+    
+                console.log("changed card data");
+    
+                reservationsData = [];
+                res.status(200).json({
+                    status: "Successfully accepted"
+                });
+            } else {
+                const deniedRequestData = deniedData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];
+                
+                // const pendingDocRef = doc(db, "reservations", "pending");
+                const allowedDocRef = doc(db, "reservations", "allowed");
+                const deniedDocRef = doc(db, "reservations", "denied"); // actually deny route la dhane use pannanu
 
-            console.log("currentRequestData",currentRequestData, "deniedRequestData",deniedRequestData, "allowedRequestData",allowedRequestData);
+                const userDocRef = doc(db, "user-data", deniedRequestData.reservedBy);
+                const cardDocRef = doc(db, "card-data", slugify(deniedRequestData.reservedHall));
 
-            const pendingDocRef = doc(db, "reservations", "pending");
-            const allowedDocRef = doc(db, "reservations", "allowed");
-            const deniedDocRef = doc(db, "reservations", "denied"); // actually deny route la dhane use pannanu
+                await updateDoc(deniedDocRef, {
+                    reservation: arrayRemove(deniedRequestData)
+                });
+                console.log("removed from denied");  
 
-            const userDocRef = doc(db, "user-data", currentRequestData.reservedBy);
-            const cardDocRef = doc(db, "card-data", slugify(currentRequestData.reservedHall));
+                await updateDoc(userDocRef, {
+                    reservations: arrayRemove(deniedRequestData)
+                });
+                console.log("userdata removed");
 
-            // await updateDoc(pendingDocRef, {
-            //     reservation: arrayRemove(currentRequestData)
-            // });
-            // console.log("removed from pending");  
+                deniedRequestData.status = "accepted";
 
-            // // denied landhu remove
+                await updateDoc(allowedDocRef, {
+                    reservation: arrayUnion(deniedRequestData)
+                });
+                console.log("added to accepted");
 
-            // await updateDoc(userDocRef, {
-            //     reservations: arrayRemove(currentRequestData)
-            // });
-            // console.log("userdata removed");
+                await updateDoc(userDocRef, {
+                    reservations: arrayUnion(deniedRequestData) 
+                });
+                console.log("updated user doc");
 
-            // currentRequestData.status = "accepted";
+                delete deniedRequestData.reservedHall;
 
-            // await updateDoc(allowedDocRef, {
-            //     reservation: arrayUnion(currentRequestData)
-            // });
-            // console.log("added to accepted");
+                // // await updateDoc(cardDocRef, {
+                // //     reservations: arrayRemove(deniedRequestData)
+                // // });
 
-            // await updateDoc(userDocRef, {
-            //     reservations: arrayUnion(currentRequestData) 
-            // });
-            // console.log("updated user doc");
+                await updateDoc(cardDocRef, {
+                    reservations: arrayUnion(deniedRequestData)
+                });
 
-            // delete currentRequestData.reservedHall;
+                console.log("changed card data");
 
-            // // await updateDoc(cardDocRef, {
-            // //     reservations: arrayRemove(currentRequestData)
-            // // });
-
-            // await updateDoc(cardDocRef, {
-            //     reservations: arrayUnion(currentRequestData)
-            // });
-
-            // console.log("changed card data");
-
-            reservationsData = [];
-            res.status(200).json({
-                status: "Successfully accepted"
-            });
+                reservationsData = [];
+                res.status(200).json({
+                    status: "Successfully accepted"
+                });
+            }
+            // const allowedRequestData = allowedData.reservation.filter( reqData => reqData.reserveId === reservationId )[0];     
 
         } catch(err) {
             console.log(err);
